@@ -1,0 +1,9 @@
+Expenses	Estimated amount per month
+Rent	€420 - €600
+Food	€200 - €300
+Books	€20 - €40
+Public transportation	€45 - €75
+Telephone, internet	€40- €60
+Health (health insurance, medication, consultations)	€45- €55
+Other	€80- €120
+Total Cost of Living	€850 - €1250

@@ -1,0 +1,96 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+The process began with python custom code using beautifulsoup scrapping of the web site first with category (dresses, tops etc) and then for each category the filters like mark down, new arrival, new with tags etc. extracting the div with class item-grid and sub classes for sales and retail prices i.e. formatted-prices and looking into the span.
+
+When a particular page would fail to give data we would try scrapping it again and in second scrap also if it fails we move to next page and if the next page also fails we would go 60 failed pages more as we observed that some pages failed and the next page would have data or 2 or even 5 pages failed and then there would be data so to be absolutely sure we set this  limit to 60 pages.
+
+We had written error logs to fish out if we have missed any class and for running and observing for couple of times we found few sub class under item-grid which were needed to be addressed.
+
+after generating 63 csv files  for each category for each filter(6 filter conditions) and without filter conditions 
+
+used mysql and put all data in 7 tables(All values, filtered with mark down, new arrival, new with tags, like new, gently used, signs of wear) having fields
+Category, Item_Number,Description, Brand, Sales_price,
+Retail_price, With_New_Tags, likely_new,gently_used, signs_of_wear,
+mark_down,new_arrival,luxe, sourcing_price
+
+then created a final table with fields Category, Item_Number,Description, Brand, Sales_price,
+Retail_price, Condition, mark_down, luxe, sourcing_price
+and converged all the data into it.
+
+To answer the deliverables 
+wrote a select query on mysql and saved the csv file
+
+wrote a group on category and condition field query with avg(sourcing price i.e. second hand price) * 100 / avg(retail price)  to q1
+
+similarly to answer the second question used mark_down as filter with avg(sourcing price i.e. second hand price) * 100 / avg(retail price) 
+
+to answer the third question took average retailprice of mark down items was multiplied by 100 and divide by total item average retail price
+
+similarly to answer the fourth question used new_arrival as filter with avg(sourcing price i.e. second hand price) * 100 / avg(retail price) 
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+item_number, description, Category,Brand,Sales Price, Retail Price, New with Tags,Like-New,Gently Used, Signs of Wear, Mark Down,New Arrival,LUXE, sourcing price
+5778883,WOMEN EXPRESS SHORT, shorts,Trafaluc by zara,14.99,30,true,false,false,false,false,
+
+
+------------------------------------------------------------------------------
+luxe
+ MAKE A LIST
+
+------------------------------------------------------------------------------
+
+THREDUP_PRICE_LIST
+fromPrice, ToPrice, StandardPayout, Luxe Payout
+0, 14.99, 5 , 15
+300,9999999.99,80,90
+--------------------------------------------------------------------------------
+
+
+470000 - list of all for shorts category - Table Scrapping_thredup 
+3200 - Marked down - True - Markdown - table 
+2004 - new with tags - True - new_with_tag table
+15302 - like new - True - like_new table
+
+Update Scrapping_thredup 
+set markdown = true where category = 'short' 
+and item_number in (select item_number from  Markdown where category ='short')
+
+Update Scrapping_thredup 
+set new_with_tag = true where category = 'short' 
+and item_number in (select item_number from  new_with tag where category = 'short')
+
+Update Scrapping_thredup 
+set like_new = true where category = 'short' 
+and item_number in (select item_number from  like_new)
+
+Update Scrapping_thredup 
+set markdown = true where category = 'short' 
+and item_number in (select item_number from  Markdown)
+
+
+------------------------------------------------------------
+Update Scrapping_thredup 
+set LUXE= true where 
+brand in (select brand from  Luxe)
+
+------------------------------------------------------------
+Update Scrapping_thredup as ST
+set Sourcing Price= Price *
+ (Select Standard Payout as Price from tredup_price_list
+ where fromPrice<ST.salesPrice and ToPrice > ST.SalesPrice )
+ / 100
+where ST.luxe=false
+
+Update Scrapping_thredup as ST
+set Sourcing Price= Price *
+ (Select Luxe  Payout as Price from tredup_price_list
+ where fromPrice<ST.salesPrice and ToPrice > ST.SalesPrice )
+ / 100
+where ST.luxe=true
+ 
+-------------------------------------------------------------------
+
+Observation : items were found in different categories absolutely fine.
+
+----------------------------------------------------------------------

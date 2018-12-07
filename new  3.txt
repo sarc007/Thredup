@@ -1,0 +1,65 @@
+
+Customers not receiving emails on forgot password as well as through BM[Customer Service] reset password, mostly emails ending with .net 
+
+
+var sortingRule = params.srule.submitted ? CatalogMgr.getSortingRule(params.srule.value) : null; // Assigning  category sorting rule to the variable sortingRule 
+    if (sortingRule) {
+        productSearchModel.setSortingRule(sortingRule);
+        var cookies = request.httpCookies;
+        var sRule = cookies['sRule'];
+        var cookie = new dw.web.Cookie("sRule", params.srule.value);
+        if (params.srule.value == productSearchModel.category.defaultSortingRule.getID()) { // if the current set sorting rule is equal to the default sort rule then boolean is true  
+            cookie.setMaxAge(0);
+            cookie.path = '/';
+            response.addHttpCookie(cookie);
+        } else if (params.srule.value == dynamicCategory.defaultSortingRule.getID()) {
+            productSearchModel.setSortingRule(dynamicCategory.defaultSortingRule);
+            cookie.setMaxAge(0);
+            cookie.path = '/';
+            response.addHttpCookie(cookie);
+        } else {
+            if (sRule && !params.srule.submitted) { // When change of sort rule is done on the page the boolean is true   
+                var sortRule = CatalogMgr.getSortingRule(sRule.value);
+                if (sortRule) {
+                    productSearchModel.setSortingRule(sortRule);
+                }
+                cookie.setMaxAge(24 * 60 * 60);
+                cookie.path = '/';
+                response.addHttpCookie(cookie);
+            } else {
+                cookie.setMaxAge(24 * 60 * 60);
+                cookie.path = '/';
+                response.addHttpCookie(cookie);
+            }
+        }
+    } else { // If user sorting rule is null
+        var cookies = request.httpCookies;
+        var sRule = cookies['sRule']; 
+        if (sRule) { // If the user has set any sorting rule boolean will be true
+            var cookie = new dw.web.Cookie("sRule", sRule.value);
+            if (sRule.value == productSearchModel.category.defaultSortingRule.getID()) { // if user set rule is equal to default product sorting rule then boolean is true
+                cookie.setMaxAge(0);
+                cookie.path = '/';
+                response.addHttpCookie(cookie);
+            } else if (sRule.value == dynamicCategory.defaultSortingRule.getID()) {// if user set rule is equal to default dynamic sorting rule then boolean is true
+                var sortRule = CatalogMgr.getSortingRule(sRule.value);
+                if (sortRule) {
+                    productSearchModel.setSortingRule(sortRule);
+                }
+                cookie.setMaxAge(0);  // Expiring the cookie
+                cookie.path = '/';
+                response.addHttpCookie(cookie);
+            } else {// If the user has NOT set any sorting rule boolean will be true
+                if (sRule.value) { // again checking cookie for any user sort rule is there or not
+                    var sortRule = CatalogMgr.getSortingRule(sRule.value);
+                    if (sortRule) {
+                        productSearchModel.setSortingRule(sortRule); 
+                        var cookie = new dw.web.Cookie("sRule", sRule.value);
+                        cookie.setMaxAge(24 * 60 * 60);
+                        cookie.path = '/';
+                        response.addHttpCookie(cookie);
+                    }
+                }
+            }
+        }
+    }
